@@ -1,0 +1,582 @@
+package Interface;
+
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.basic.BasicArrowButton;
+
+import Mundo.BandaRock;
+
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+
+import java.awt.Font;
+import java.awt.Color;
+import javax.swing.JTextField;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.awt.SystemColor;
+
+public class BandaRockInterface extends JFrame {
+
+	private JPanel miPanel;
+	private JTextField txtNombre;
+	private JTextField txtVocalista;
+	private JTextField txtAlbum;
+	private JTextField txtCantidadCanciones;
+	private JTextField txtImagen;
+	
+	
+	
+	
+	
+	 Connection conexion = null;  
+	 PreparedStatement preparedStatementm = null;
+	 ResultSet resulSet = null;
+	
+	  ///////////////////////////////////////////////////////////////////////////////////////////////////////
+	   //////---------- Limpiar cuadros de texto   ----------------------------------------------------------
+	    
+	    private void limpiarTexto() {
+			txtNombre.setText(null);
+			txtVocalista.setText(null);
+			txtAlbum.setText(null);
+			txtCantidadCanciones.setText(null);
+			txtImagen.setText(null);	
+			
+			
+		}		
+	
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		
+		//UIManager.setLookAndFeel("com.jatatto.plaf.aluminium.AluminiumLookAndFeel");
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					BandaRockInterface frame = new BandaRockInterface();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public BandaRockInterface() {
+		setForeground(Color.RED);
+		setFont(new Font("Dialog", Font.BOLD, 14));
+		setTitle("BANDAS DE ROCK");
+		setResizable(false);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 508, 500);
+		miPanel = new JPanel();
+		miPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(miPanel);
+		miPanel.setLayout(null);
+		
+		
+		/**
+		 *     -----   AGREGAR BANDA  -----
+		 */	
+
+		JButton btnAgregar = new JButton("Agregar");
+		btnAgregar.setBackground(SystemColor.controlShadow);
+		
+		btnAgregar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				
+				btnAgregar.setText(" BANDA ");
+				btnAgregar.setFont(new Font("Rockwell Condensed", Font.BOLD, 16));
+				
+				btnAgregar.setBackground(new Color(0, 0, 51));
+				btnAgregar.setForeground(new Color(255, 0, 0));
+				btnAgregar.setOpaque(false);
+				
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				
+				btnAgregar.setText(" Agregar ");
+				btnAgregar.setFont(new Font("Rockwell Condensed", Font.BOLD, 15));
+				btnAgregar.setBackground(new Color(0, 0, 51));
+				btnAgregar.setBackground(SystemColor.scrollbar);
+				btnAgregar.setOpaque(true);
+				
+				
+			}
+		});
+		btnAgregar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				conexion = BandaRock.conectar();
+
+				try { // -- Establecer conexion
+
+					String sql = "INSERT INTO bandasrock(nombre_banda, vocalista_banda, mejor_album_banda, cant_can_album, imagen_banda) VALUES(?, ?, ?, ?, ?)";
+
+					preparedStatementm = conexion.prepareStatement(sql);
+
+					preparedStatementm.setString(1, txtNombre.getText());
+					preparedStatementm.setString(2, txtVocalista.getText());
+					preparedStatementm.setString(3, txtAlbum.getText());
+					preparedStatementm.setString(4, txtCantidadCanciones.getText());
+					preparedStatementm.setString(5, txtImagen.getText());
+
+					int resultado = preparedStatementm.executeUpdate();
+
+					if (resultado > 0 && txtNombre.getText() != null) {
+						JOptionPane.showMessageDialog(null,
+								"La Banda " + txtNombre.getText() + " ha sido agregado correctamente ");
+						conexion.close();
+					} else
+						JOptionPane.showMessageDialog(null, "Error en el registro de " + txtNombre.getText());
+
+				} catch (SQLException e5) {
+					JOptionPane.showMessageDialog(null, "Error en la conexion " + e5.getMessage());
+				}
+
+				limpiarTexto();
+
+			}
+		});
+		
+		JLabel lblFotoBanda = new JLabel("");
+		lblFotoBanda.setForeground(Color.ORANGE);
+		lblFotoBanda.setBounds(274, 93, 210, 210);
+		miPanel.add(lblFotoBanda);
+
+		btnAgregar.setForeground(new Color(255, 0, 0));
+		btnAgregar.setFont(new Font("Rockwell Condensed", Font.BOLD, 14));
+		btnAgregar.setBounds(10, 379, 110, 32);
+		
+		miPanel.add(btnAgregar);
+		
+		
+		/**
+		 *     -----   BUSCAR BANDA  -----
+		 */	
+		
+		
+		JButton btnBuscar = new JButton("Buscar");
+		btnBuscar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				
+				btnBuscar.setText(" BANDA ");
+				btnBuscar.setFont(new Font("Rockwell Condensed", Font.BOLD, 16));
+				
+				btnBuscar.setBackground(new Color(0, 0, 31));
+				btnBuscar.setForeground(new Color(128, 128, 0));
+				
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				
+				
+				btnBuscar.setText(" Buscar ");
+				btnBuscar.setFont(new Font("Rockwell Condensed", Font.BOLD, 15));
+				
+				btnBuscar.setBackground(SystemColor.scrollbar);
+				btnBuscar.setForeground(new Color(128, 128, 0));
+				
+				
+			}
+		});
+		btnBuscar.setBackground(SystemColor.controlShadow);
+		btnBuscar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				String entrada = JOptionPane.showInputDialog(" Ingrese el nombre de la Banda de Rock ");
+				conexion = BandaRock.conectar();
+				
+				try { // -- Establecer conexion
+
+					String sql = "SELECT * FROM bandasrock WHERE nombre_banda=?";
+
+					preparedStatementm = conexion.prepareStatement(sql);
+
+					preparedStatementm.setString(1, entrada);
+					resulSet = preparedStatementm.executeQuery();
+
+					
+
+					if (resulSet.next())
+					{
+						txtNombre.setText(resulSet.getString("nombre_banda"));
+						txtVocalista.setText(resulSet.getString("vocalista_banda"));
+						txtAlbum.setText(resulSet.getString("mejor_album_banda"));
+						txtCantidadCanciones.setText(resulSet.getString("cant_can_album"));
+						txtImagen.setText(resulSet.getString("imagen_banda"));
+						//lblFotoBanda.setIcon(new ImageIcon( ));
+						txtNombre.setEditable(false);
+						conexion.close();
+					} else
+						JOptionPane.showMessageDialog(null, "No se Encuentra " + txtNombre.getText());
+
+				} catch (SQLException e1) {
+					JOptionPane.showMessageDialog(null, "ha ocurrido un error " + e1.getMessage());
+				}
+
+				
+				
+				
+				
+			}
+		});
+		btnBuscar.setForeground(new Color(128, 128, 0));
+		btnBuscar.setFont(new Font("Rockwell Condensed", Font.BOLD, 14));
+		btnBuscar.setBounds(134, 379, 110, 32);
+		miPanel.add(btnBuscar);
+		
+		
+		/**
+		 *     -----   MODIFICAR BANDA  -----
+		 */	
+		
+		
+		JButton btnModificar = new JButton("Modificar");
+		btnModificar.setBackground(SystemColor.controlShadow);
+		btnModificar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				conexion = BandaRock.conectar();
+
+				try { // -- Establecer conexion
+
+					String sql = "UPDATE bandasrock SET vocalista_banda=?, mejor_album_banda=?, cant_can_album=?, imagen_banda=?  WHERE nombre_banda=? ";
+
+					preparedStatementm = conexion.prepareStatement(sql);
+
+					preparedStatementm.setString(5, txtNombre.getText());
+					preparedStatementm.setString(1, txtVocalista.getText());
+					preparedStatementm.setString(2, txtAlbum.getText());
+					preparedStatementm.setString(3, txtCantidadCanciones.getText());
+					preparedStatementm.setString(4, txtImagen.getText());
+
+					int resultado = preparedStatementm.executeUpdate();
+
+					if (resultado > 0) {
+						JOptionPane.showMessageDialog(null, "La Banda " + txtNombre.getText() + " se modifico correctamente ");
+						limpiarTexto();
+						conexion.close();
+					} else
+						JOptionPane.showMessageDialog(null, "Error en al modificar " + txtNombre.getText());
+
+				} catch (SQLException e2) {
+					JOptionPane.showMessageDialog(null, "Error en la conexion " + e2.getMessage());
+				}
+
+				limpiarTexto();
+
+				
+				
+				
+				
+			}
+		});
+		btnModificar.setFont(new Font("Rockwell Condensed", Font.BOLD, 14));
+		btnModificar.setForeground(new Color(255, 0, 255));
+		btnModificar.setBounds(254, 379, 110, 32);
+		miPanel.add(btnModificar);
+		
+		
+		/**
+		 *     -----   BORRAR BANDA  -----
+		 */	
+		
+		
+		JButton btnBorrar = new JButton("Borrar");
+		btnBorrar.setBackground(SystemColor.controlShadow);
+		btnBorrar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				String entrada = JOptionPane.showInputDialog(" Ingrese el nombre de la Banda de Rock que desea Eliminar ");
+				conexion = BandaRock.conectar();
+
+				try { // -- Establecer conexion
+
+					String sql = "DELETE FROM bandasrock WHERE nombre_banda=?";
+
+					preparedStatementm = conexion.prepareStatement(sql);
+
+					preparedStatementm.setString(1, entrada);
+
+					int resultado = preparedStatementm.executeUpdate();
+
+					if (resultado > 0) {
+						JOptionPane.showMessageDialog(null,
+								"La Banda " + txtNombre.getText() + " ha Sido eliminada Correctamente");
+
+						conexion.close();
+					} else
+						JOptionPane.showMessageDialog(null, "No se pudo eliminar la banda  " + txtNombre.getText());
+
+				} catch (SQLException e3) {
+					JOptionPane.showMessageDialog(null,
+							"ha ocurrido un error al conectarse a la base de datos " + e3.getMessage());
+				}
+
+			}
+		});
+		btnBorrar.setForeground(new Color(51, 0, 102));
+		btnBorrar.setFont(new Font("Rockwell Condensed", Font.BOLD, 14));
+		btnBorrar.setBounds(374, 379, 110, 32);
+		miPanel.add(btnBorrar);
+		
+		
+		/**
+		 *     -----   SALIR DE LA BANDA  -----
+		 */	
+		
+		
+		JButton btnSalir = new JButton("Salir");
+		btnSalir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				System.exit(DISPOSE_ON_CLOSE);
+				
+			}
+		});
+		btnSalir.setBackground(new Color(0, 0, 51));
+		btnSalir.setForeground(new Color(30, 144, 255));
+		btnSalir.setFont(new Font("Rockwell Extra Bold", Font.BOLD, 14));
+		btnSalir.setBounds(204, 422, 89, 23);
+		btnSalir.setOpaque(false);
+		miPanel.add(btnSalir);
+		
+		
+		/**
+		 *    /////   TXT IMAGEN  -----
+		 */	
+		
+		
+		txtImagen = new JTextField();
+		txtImagen.setForeground(new Color(250, 240, 230));
+		txtImagen.setBackground(SystemColor.activeCaptionBorder);
+		txtImagen.setEditable(false);
+		txtImagen.setHorizontalAlignment(SwingConstants.CENTER);
+		txtImagen.setFont(new Font("Rockwell Condensed", Font.BOLD, 15));
+		txtImagen.setBounds(137, 306, 110, 20);
+		miPanel.add(txtImagen);
+		txtImagen.setColumns(10);
+		txtImagen.setOpaque(false);
+		
+		
+		/**
+		 *     -----   EXAMINAR IMAGEN  -----
+		 */	
+		
+		
+		JButton btnExaminarImagen = new JButton("Imagen");
+		btnExaminarImagen.setBackground(SystemColor.scrollbar);
+		btnExaminarImagen.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				
+				btnExaminarImagen.setText(" Examinar ");
+				btnExaminarImagen.setFont(new Font("Rockwell Condensed", Font.BOLD, 15));
+				
+				btnExaminarImagen.setBackground(new Color(0, 0, 51));
+				btnExaminarImagen.setForeground(new Color(30, 144, 255));
+				
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				
+				btnExaminarImagen.setText(" Imagen ");
+				btnExaminarImagen.setForeground(new Color(148, 0, 211));
+				btnExaminarImagen.setFont(new Font("Rockwell Condensed", Font.BOLD, 14));
+				
+			}
+		});
+		btnExaminarImagen.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				
+				
+				 JFileChooser jf= new JFileChooser();
+				 jf.setDialogTitle(" Buscar Imagen. Posdata que sea una imagen de puro rock ");
+					jf.showOpenDialog(txtImagen);
+					
+					FileFilter filter = null;
+					jf.setFileFilter(filter);
+					File archivo = jf.getSelectedFile();
+				
+					if(archivo != null) {
+						txtImagen.setText(archivo.getName()); 
+					
+					
+						
+						
+					
+						
+						
+						
+						
+							  
+							 
+							
+				    
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+				
+			/** 	
+				
+				JFileChooser jf= new JFileChooser();
+				//jf.showOpenDialog(txtImagen);
+				jf.setDialogTitle(" Buscar Imagen ");
+				//jf.showOpenDialog(BandaRockInterface);
+				if(jf.showOpenDialog(txtImagen)==JFileChooser.APPROVE_OPTION)
+				{
+					File archivo = new File(jf.getSelectedFile().toString());
+				}
+				
+				File archivo = jf.getSelectedFile();
+				if(archivo != null) {
+					txtImagen.setText(archivo.getAbsolutePath());
+					//lblFotoBanda.setIcon(archivo.getAbsolutePath());
+				}
+				
+				
+				
+				JFileChooser chooser = new JFileChooser();
+				    FileNameExtensionFilter filter = new FileNameExtensionFilter(
+				        "JPG & GIF Images", "jpg", "gif");
+				    chooser.setFileFilter(filter);
+				    int returnVal = chooser.showOpenDialog(getParent());
+				    if(returnVal == JFileChooser.APPROVE_OPTION) {
+				       System.out.println("You chose to open this file: " +
+				            chooser.getSelectedFile().getName());*/
+				
+					}}
+		});
+		btnExaminarImagen.setForeground(new Color(148, 0, 211));
+		btnExaminarImagen.setFont(new Font("Rockwell Condensed", Font.BOLD, 14));
+		btnExaminarImagen.setBounds(10, 304, 115, 23);
+		miPanel.add(btnExaminarImagen);
+		
+		txtCantidadCanciones = new JTextField();
+		txtCantidadCanciones.setForeground(new Color(250, 240, 230));
+		txtCantidadCanciones.setBackground(SystemColor.inactiveCaption);
+		txtCantidadCanciones.setHorizontalAlignment(SwingConstants.CENTER);
+		txtCantidadCanciones.setFont(new Font("Rockwell Condensed", Font.BOLD, 15));
+		txtCantidadCanciones.setBounds(137, 241, 110, 20);
+		miPanel.add(txtCantidadCanciones);
+		txtCantidadCanciones.setColumns(10);
+		txtCantidadCanciones.setOpaque(false);
+		
+		JLabel lblCantidadCanciones = new JLabel("# Canciones");
+		lblCantidadCanciones.setForeground(new Color(255, 165, 0));
+		lblCantidadCanciones.setHorizontalAlignment(SwingConstants.LEFT);
+		lblCantidadCanciones.setFont(new Font("Rockwell Extra Bold", Font.BOLD, 14));
+		lblCantidadCanciones.setBounds(10, 240, 126, 20);
+		miPanel.add(lblCantidadCanciones);
+		
+		txtAlbum = new JTextField();
+		txtAlbum.setForeground(new Color(250, 240, 230));
+		txtAlbum.setHorizontalAlignment(SwingConstants.CENTER);
+		txtAlbum.setBackground(SystemColor.activeCaptionBorder);
+		txtAlbum.setFont(new Font("Rockwell Condensed", Font.BOLD, 15));
+		txtAlbum.setBounds(137, 191, 110, 20);
+		miPanel.add(txtAlbum);
+		txtAlbum.setColumns(10);
+		txtAlbum.setOpaque(false);
+		
+		JLabel lblAlbum = new JLabel("Mejor Album");
+		lblAlbum.setHorizontalAlignment(SwingConstants.LEFT);
+		lblAlbum.setForeground(new Color(102, 205, 170));
+		lblAlbum.setFont(new Font("Rockwell Extra Bold", Font.BOLD, 14));
+		lblAlbum.setBounds(10, 190, 126, 20);
+		miPanel.add(lblAlbum);
+		
+		txtVocalista = new JTextField();
+		txtVocalista.setForeground(new Color(250, 240, 230));
+		txtVocalista.setBackground(SystemColor.inactiveCaption);
+		txtVocalista.setToolTipText("");
+		txtVocalista.setHorizontalAlignment(SwingConstants.CENTER);
+		txtVocalista.setFont(new Font("Rockwell Condensed", Font.BOLD, 15));
+		txtVocalista.setBounds(137, 134, 110, 20);
+		miPanel.add(txtVocalista);
+		txtVocalista.setColumns(10);
+		txtVocalista.setOpaque(false);
+		
+		JLabel lblVocalista = new JLabel("Vocalista");
+		lblVocalista.setForeground(new Color(153, 0, 204));
+		lblVocalista.setFont(new Font("Rockwell Extra Bold", Font.BOLD, 14));
+		lblVocalista.setBounds(10, 132, 110, 20);
+		miPanel.add(lblVocalista);
+		
+		txtNombre = new JTextField();
+		txtNombre.setForeground(new Color(250, 240, 230));
+		txtNombre.setBackground(SystemColor.activeCaptionBorder);
+		txtNombre.setFont(new Font("Rockwell Condensed", Font.BOLD, 14));
+		txtNombre.setHorizontalAlignment(SwingConstants.CENTER);
+		txtNombre.setBounds(134, 83, 110, 20);
+		miPanel.add(txtNombre);
+		txtNombre.setColumns(10);
+		txtNombre.setOpaque(false);
+		
+		JLabel lblNombre = new JLabel("Banda");
+		lblNombre.setHorizontalAlignment(SwingConstants.LEFT);
+		lblNombre.setForeground(new Color(176, 196, 222));
+		lblNombre.setFont(new Font("Rockwell Extra Bold", Font.BOLD, 14));
+		lblNombre.setBounds(10, 82, 110, 20);
+		miPanel.add(lblNombre);
+		
+		JLabel lblTitulo = new JLabel("Super Rock .l.");
+		lblTitulo.setFont(new Font("Rockwell Extra Bold", Font.BOLD, 25));
+		lblTitulo.setForeground(new Color(169, 169, 169));
+		lblTitulo.setHorizontalAlignment(SwingConstants.CENTER);
+		lblTitulo.setBounds(137, 11, 219, 32);
+		miPanel.add(lblTitulo);
+		
+		JLabel lblFondo = new JLabel("");
+		lblFondo.setHorizontalAlignment(SwingConstants.CENTER);
+		lblFondo.setIcon(new ImageIcon("X:\\Universidad Mariana\\Septimo Semestre\\Estructuras de datos\\BandasDeRock-JSP-MySQL\\BandasRock\\misImagenes\\imagen16.gif"));
+		lblFondo.setBounds(0, 0, 502, 472);
+		miPanel.add(lblFondo);
+		
+		
+	}
+}

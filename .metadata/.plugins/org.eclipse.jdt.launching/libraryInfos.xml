@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<libraryInfos>
+<libraryInfo home="C:\Programas descargados\Eclipse\Instalador" version="1.8.0_261">
+<bootpath>
+<entry path="C:\Programas descargados\Eclipse\Instalador\lib\resources.jar"/>
+<entry path="C:\Programas descargados\Eclipse\Instalador\lib\rt.jar"/>
+<entry path="C:\Programas descargados\Eclipse\Instalador\lib\sunrsasign.jar"/>
+<entry path="C:\Programas descargados\Eclipse\Instalador\lib\jsse.jar"/>
+<entry path="C:\Programas descargados\Eclipse\Instalador\lib\jce.jar"/>
+<entry path="C:\Programas descargados\Eclipse\Instalador\lib\charsets.jar"/>
+<entry path="C:\Programas descargados\Eclipse\Instalador\lib\jfr.jar"/>
+<entry path="C:\Programas descargados\Eclipse\Instalador\classes"/>
+</bootpath>
+<extensionDirs>
+<entry path="C:\Programas descargados\Eclipse\Instalador\lib\ext"/>
+<entry path="C:\Windows\Sun\Java\lib\ext"/>
+</extensionDirs>
+<endorsedDirs>
+<entry path="C:\Programas descargados\Eclipse\Instalador\lib\endorsed"/>
+</endorsedDirs>
+</libraryInfo>
+</libraryInfos>
